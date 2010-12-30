@@ -19,10 +19,15 @@ function! s:IndentGuidesDisable()
   call indent_guides#disable()
 endfunction
 
+function! s:IndentGuidesToggleHighlight()
+  call indent_guides#toggle_highlight_column()
+endfunction
+
 " Commands
-command! IndentGuidesToggle  call s:IndentGuidesToggle()
-command! IndentGuidesEnable  call s:IndentGuidesEnable()
-command! IndentGuidesDisable call s:IndentGuidesDisable()
+command! IndentGuidesToggle          call s:IndentGuidesToggle()
+command! IndentGuidesEnable          call s:IndentGuidesEnable()
+command! IndentGuidesDisable         call s:IndentGuidesDisable()
+command! IndentGuidesToggleHighlight call s:IndentGuidesToggleHighlight()
 
 " Default options
 let g:indent_guides_indent_levels =
@@ -55,6 +60,7 @@ let g:indent_guides_hex_color_pattern = '#[0-9A-Fa-f]\{6\}'
 
 " Default mapping
 nmap <Leader>ig :IndentGuidesToggle<CR>
+nmap <Leader>ih :IndentGuidesToggleHighlight<CR>
 
 " Auto commands
 augroup indent_guides

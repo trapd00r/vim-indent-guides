@@ -171,7 +171,73 @@ endfunction
 " Define default highlights.
 "
 function! indent_guides#define_default_highlights()
-  exe 'hi IndentGuidesOdd  guibg=NONE ctermbg=NONE'
-  exe 'hi IndentGuidesEven guibg=NONE ctermbg=NONE'
+  exe 'hi IndentGuidesOdd             guibg=NONE ctermbg=NONE'
+  exe 'hi IndentGuidesEven            guibg=NONE ctermbg=NONE'
+  exe 'hi IndentGuidesHighlightColumn guibg=NONE ctermbg=NONE'
+endfunction
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" UNDER DEVELOPMENT
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+function! indent_guides#toggle_highlight_column()
+  call indent_guides#init_highlight_column_matches()
+
+  if indent_guides#check_highlight_column_match_exists()
+    call indent_guides#disable_highlight_column_match()
+  else
+    call indent_guides#enable_highlight_column_match()
+  endif
+endfunction
+
+"
+" Init the w:indent_guides_highlight_column_matches variable.
+"
+function! indent_guides#init_highlight_column_matches()
+  let w:indent_guides_highlight_column_matches =
+    \ exists('w:indent_guides_highlight_column_matches') ?
+    \ w:indent_guides_highlight_column_matches : {}
+endfunction
+
+function! indent_guides#check_highlight_column_match_exists()
+  let l:indent_level = indent_guides#get_indent_level()
+  "echo l:indent_level
+  "echo has_key(w:indent_guides_highlight_column_matches, l:indent_level)
+  return has_key(w:indent_guides_highlight_column_matches, l:indent_level)
+endfunction
+
+function! indent_guides#enable_highlight_column_match()
+  call indent_guides#init_highlight_column_matches()
+
+  let l:indent_level = indent_guides#get_indent_level()
+  let l:multiplier   = indent_guides#get_multiplier()
+
+  let l:pattern      = '^\s\{' . (l:indent_level * l:multiplier) . '\}\zs'
+  let l:pattern     .= '\s\{' . l:multiplier . '\}'
+  let l:pattern     .= '\ze'
+
+  exe 'hi IndentGuidesHighlightColumn guibg=orange'
+  let l:match = matchadd('IndentGuidesHighlightColumn', l:pattern)
+  let w:indent_guides_highlight_column_matches[l:indent_level] = l:match
+endfunction
+
+function! indent_guides#disable_highlight_column_match()
+  let l:indent_level = indent_guides#get_indent_level()
+
+  if has_key(w:indent_guides_highlight_column_matches, l:indent_level)
+    call matchdelete(w:indent_guides_highlight_column_matches[l:indent_level])
+    call remove(w:indent_guides_highlight_column_matches, l:indent_level)
+  endif
+endfunction
+
+function! indent_guides#get_indent_level()
+  let l:column       = col(".") - 1
+  let l:multiplier   = indent_guides#get_multiplier()
+  let l:indent_level = float2nr(l:column / l:multiplier)
+  return l:indent_level
+endfunction
+
+function! indent_guides#get_multiplier()
+  return (&l:expandtab == 1) ? &l:shiftwidth : 1
 endfunction
 
